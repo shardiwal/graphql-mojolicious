@@ -49,6 +49,15 @@ http://127.0.0.1:3000/graphql_query
 ```
 
 ```sh
+mutation {
+  addCourse(name:"Course 3", user_id:"b") {
+    name
+    id
+  }
+}
+```
+
+```sh
 {
   users {
     name
@@ -56,10 +65,21 @@ http://127.0.0.1:3000/graphql_query
 }
 ```
 
+```sh
+{
+  user(id: "a") {
+    name
+  }
+}
+
+```
+
+
 ### Flat file database
 
 ```sh
 /lib/Course/Model/DB.pm
+/lib/Course/Model/Schema.pm
 ```
 
 ```sh

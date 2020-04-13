@@ -8,6 +8,8 @@ use GraphQL::Type::Object;
 use GraphQL::Type::Scalar qw($String);
 use GraphQL::Type::List;
 
+use Course::Model::CourseMutation;
+
 use Moose;
 
 has 'c' => (
@@ -23,12 +25,14 @@ has 'default' => (
 );
 sub _build_default {
 	my ( $self ) = @_;
+	my $c = $self->c;
 	return GraphQL::Schema->new(
 		query => GraphQL::Type::Object->new(
 			name => 'Query',
 			description => 'Root Query',
 			fields => $self->schema_fields(),
-		)
+		),
+		mutation => Course::Model::CourseMutation->new( c => $c )->actions,
 	);
 }
 
@@ -62,9 +66,20 @@ sub schema_fields {
 				$c->db->users;
 			}
 		},
+		user => {
+			type 		=> $c->object->course('Single_User'),
+			description => 'Single user',
+			args        => {
+				id => { type => $String }
+			},
+			resolve     => sub {
+				my ($course, $args) = @_;
+				my @filtered = grep { $_->{'id'} eq $args->{'id'} } @{$c->db->users};
+				return $filtered[0];
+			}
+		},
 	};
 }
-
 
 
 1;
