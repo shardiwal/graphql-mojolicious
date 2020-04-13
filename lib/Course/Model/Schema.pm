@@ -6,6 +6,7 @@ use warnings;
 use GraphQL::Schema;
 use GraphQL::Type::Object;
 use GraphQL::Type::Scalar qw($String);
+use GraphQL::Type::List;
 
 use Moose;
 
@@ -25,6 +26,7 @@ sub _build_default {
 	return GraphQL::Schema->new(
 		query => GraphQL::Type::Object->new(
 			name => 'Query',
+			description => 'Root Query',
 			fields => $self->schema_fields(),
 		)
 	);
@@ -32,24 +34,37 @@ sub _build_default {
 
 sub schema_fields {
 	my ( $self ) = @_;
-	return {
-		user => $self->schema_fields_user
-	};
-}
-
-sub schema_fields_user {
-	my ( $self ) = @_;
 	my $c = $self->c;
 	return {
-		type => $c->object->user,
-		args => { id => { type => $String } },
-		resolve => sub {
-			my ($root_value, $args) = @_;
-			my $id = $args->{id};
-			return unless $c->db->records->{$id};
-			$c->db->records->{$id}
+		courses => {
+			type => GraphQL::Type::List->new( of => $c->object->course ),
+			description => 'List of all courses',
+			resolve => sub {
+				$c->db->courses;
+			}
+		},
+		course => {
+			type 		=> $c->object->course('Single_Course'),
+			description => 'Single course',
+			args        => {
+				id => { type => $String }
+			},
+			resolve     => sub {
+				my ($course, $args) = @_;
+				my @filtered = grep { $_->{'id'} eq $args->{'id'} } @{$c->db->courses};
+				return $filtered[0];
+			}
+		},
+		users => {
+			type => GraphQL::Type::List->new( of => $c->object->user ),
+			description => 'List of all users',
+			resolve => sub {
+				$c->db->users;
+			}
 		},
 	};
 }
+
+
 
 1;

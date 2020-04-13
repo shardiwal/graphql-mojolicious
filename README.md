@@ -13,16 +13,47 @@ FYI ```Course``` is an application name.
 ### URL for graphql query
 
 ```sh
+http://127.0.0.1:3000/graphql
 http://127.0.0.1:3000/graphql_query
 ```
 
 ```sh
-    {
-        user(id: "b") {
-            name
-            id
-        }
+{
+  courses {
+    id
+    name
+  }
+}
+```
+
+```sh
+{
+  courses {
+    id
+    name
+    author {
+      id
     }
+  }
+}
+
+```
+
+```sh
+{
+  course(id: "1") {
+    id
+    name
+  }
+}
+```
+
+```sh
+{
+  users {
+    name
+  }
+}
 ```
 
 ### Flat file database
